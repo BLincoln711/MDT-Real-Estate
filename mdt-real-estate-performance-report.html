@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDT Real Estate - Campaign Performance Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+            color: #2c3e50;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 36px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .header .subtitle {
+            font-size: 20px;
+            opacity: 0.9;
+            margin: 5px 0;
+        }
+        
+        .header .date-range {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            display: inline-block;
+            border-radius: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .campaign-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: -20px auto 30px auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .campaign-tab {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .campaign-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .campaign-tab.active {
+            border-color: #3498db;
+            background: #f0f9ff;
+        }
+        
+        .campaign-tab h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        
+        .campaign-tab .metric {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3498db;
+            margin: 5px 0;
+        }
+        
+        .campaign-tab .label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .executive-summary {
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .executive-summary h2 {
+            color: #2c3e50;
+            margin: 0 0 25px 0;
+            font-size: 26px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .metrics-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card .label {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .metric-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+        
+        .metric-card .context {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .metric-card.highlight {
+            background: #e3f2fd;
+            border-color: #3498db;
+        }
+        
+        .metric-card.success {
+            background: #e8f5e9;
+            border-color: #2ecc71;
+        }
+        
+        .metric-card.success::before {
+            background: #2ecc71;
+        }
+        
+        .section {
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .section h3 {
+            color: #2c3e50;
+            margin: 0 0 25px 0;
+            font-size: 22px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: #3498db;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .performance-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .performance-badge.excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .performance-badge.good {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .performance-badge.average {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .insights-box {
+            background: #e3f2fd;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+            margin: 25px 0;
+        }
+        
+        .insights-box h4 {
+            margin: 0 0 15px 0;
+            color: #1976d2;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .insights-box ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        
+        .insights-box li {
+            margin: 10px 0;
+            color: #34495e;
+            line-height: 1.6;
+        }
+        
+        .recommendations-box {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #2ecc71;
+            margin: 25px 0;
+        }
+        
+        .recommendations-box h4 {
+            margin: 0 0 15px 0;
+            color: #27ae60;
+            font-size: 18px;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        
+        .keyword-performance {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .keyword-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .keyword-card h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .keyword-metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .keyword-metric:last-child {
+            border-bottom: none;
+        }
+        
+        .top-performer {
+            background: #e8f5e9;
+        }
+        
+        .conversion-highlight {
+            background: #fff3cd;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .footer .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .property-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .property-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .property-card h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .property-card .impressions {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3498db;
+            margin: 10px 0;
+        }
+        
+        .property-card .performance {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        @media print {
+            .header {
+                background: #2c3e50 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .campaign-selector {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MDT Real Estate</h1>
+        <div class="subtitle">Search & Display Campaign Performance Report</div>
+        <div class="subtitle">Presented by Blok.co</div>
+        <div class="date-range">April 30, 2025 - May 29, 2025</div>
+    </div>
+    
+    <div class="container">
+        <!-- Campaign Selector -->
+        <div class="campaign-selector">
+            <div class="campaign-tab active" onclick="showCampaign('all')">
+                <h3>Combined Performance</h3>
+                <div class="metric">$1,998</div>
+                <div class="label">Total Investment</div>
+            </div>
+            <div class="campaign-tab" onclick="showCampaign('search')">
+                <h3>Search Campaigns</h3>
+                <div class="metric">24 Leads</div>
+                <div class="label">Generated</div>
+            </div>
+            <div class="campaign-tab" onclick="showCampaign('display')">
+                <h3>Display Campaigns</h3>
+                <div class="metric">67,155</div>
+                <div class="label">Impressions</div>
+            </div>
+        </div>
+        
+        <!-- Combined Executive Summary -->
+        <div id="all-content" class="campaign-content">
+            <div class="executive-summary">
+                <h2>Executive Summary - Combined Campaigns</h2>
+                
+                <div class="metrics-overview">
+                    <div class="metric-card success">
+                        <div class="label">Total Conversions</div>
+                        <div class="value">29</div>
+                        <div class="context">24 from Search, 5 from Display</div>
+                    </div>
+                    
+                    <div class="metric-card highlight">
+                        <div class="label">Combined Investment</div>
+                        <div class="value">$1,998</div>
+                        <div class="context">48% Search, 52% Display</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Total Impressions</div>
+                        <div class="value">75,716</div>
+                        <div class="context">89% from Display campaigns</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Overall CPA</div>
+                        <div class="value">$68.91</div>
+                        <div class="context">Blended across channels</div>
+                    </div>
+                    
+                    <div class="metric-card success">
+                        <div class="label">Search Conv. Rate</div>
+                        <div class="value">4.11%</div>
+                        <div class="context">2x industry average</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Brand Reach</div>
+                        <div class="value">67,155</div>
+                        <div class="context">Display impressions</div>
+                    </div>
+                </div>
+                
+                <div class="insights-box">
+                    <h4>🎯 Campaign Strategy Success</h4>
+                    <ul>
+                        <li><strong>Dual-Channel Synergy:</strong> Search campaigns drive immediate leads while Display builds brand awareness in target markets</li>
+                        <li><strong>Cost Efficiency:</strong> Search CPA of $40.19 is 60% below real estate industry average of $100+</li>
+                        <li><strong>Market Coverage:</strong> Strong presence across DC, Arlington, Georgetown, and Falls Church markets</li>
+                        <li><strong>Lead Quality:</strong> High-intent search traffic converting at 4.11% indicates strong keyword targeting</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Campaign Performance Comparison -->
+            <div class="section">
+                <h3><span class="icon">📊</span> Campaign Performance Comparison</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campaign</th>
+                            <th>Budget</th>
+                            <th>Cost</th>
+                            <th>Clicks</th>
+                            <th>Conversions</th>
+                            <th>Conv. Rate</th>
+                            <th>CPA</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="top-performer">
+                            <td><strong>Washington DC Buyers | Search</strong></td>
+                            <td>$33/day</td>
+                            <td>$964.59</td>
+                            <td>584</td>
+                            <td>24</td>
+                            <td>4.11%</td>
+                            <td>$40.19</td>
+                            <td><span class="performance-badge excellent">Excellent</span></td>
+                        </tr>
+                        <tr>
+                            <td>3725 9th St NW | Display</td>
+                            <td>$16/day</td>
+                            <td>$392.63</td>
+                            <td>178</td>
+                            <td>1</td>
+                            <td>0.56%</td>
+                            <td>$392.63</td>
+                            <td><span class="performance-badge average">Average</span></td>
+                        </tr>
+                        <tr>
+                            <td>Brand Awareness | Display</td>
+                            <td>$8/day</td>
+                            <td>$233.42</td>
+                            <td>165</td>
+                            <td>2</td>
+                            <td>1.21%</td>
+                            <td>$116.71</td>
+                            <td><span class="performance-badge good">Good</span></td>
+                        </tr>
+                        <tr>
+                            <td>2310 20th St NW | Display</td>
+                            <td>$8/day</td>
+                            <td>$203.04</td>
+                            <td>155</td>
+                            <td>1</td>
+                            <td>0.65%</td>
+                            <td>$203.04</td>
+                            <td><span class="performance-badge average">Average</span></td>
+                        </tr>
+                        <tr>
+                            <td>1435 4th St SW | Display</td>
+                            <td>$8/day</td>
+                            <td>$204.03</td>
+                            <td>216</td>
+                            <td>1</td>
+                            <td>0.46%</td>
+                            <td>$204.03</td>
+                            <td><span class="performance-badge average">Average</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Search Campaign Content -->
+        <div id="search-content" class="campaign-content hidden">
+            <div class="executive-summary">
+                <h2>Search Campaign Performance - Lead Generation Focus</h2>
+                
+                <div class="metrics-overview">
+                    <div class="metric-card success">
+                        <div class="label">Total Leads</div>
+                        <div class="value">24</div>
+                        <div class="context">High-quality inquiries</div>
+                    </div>
+                    
+                    <div class="metric-card highlight">
+                        <div class="label">Cost Per Lead</div>
+                        <div class="value">$40.19</div>
+                        <div class="context">60% below industry avg</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Conversion Rate</div>
+                        <div class="value">4.11%</div>
+                        <div class="context">2x industry benchmark</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Total Clicks</div>
+                        <div class="value">584</div>
+                        <div class="context">High-intent traffic</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Average CPC</div>
+                        <div class="value">$1.65</div>
+                        <div class="context">Competitive pricing</div>
+                    </div>
+                    
+                    <div class="metric-card success">
+                        <div class="label">Investment</div>
+                        <div class="value">$964.59</div>
+                        <div class="context">Within budget</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top Converting Keywords -->
+            <div class="section">
+                <h3><span class="icon">🔑</span> Top Converting Keywords</h3>
+                
+                <div class="keyword-performance">
+                    <div class="keyword-card">
+                        <h4>DC Condos</h4>
+                        <div class="keyword-metric">
+                            <span>Conversions</span>
+                            <span style="color: #2ecc71; font-weight: 600;">2</span>
+                        </div>
+                        <div class="keyword-metric">
+                            <span>Conv. Rate</span>
+                            <span>22.22%</span>
+                        </div>
+                        <div class="keyword-metric">
+                            <span>CPA</span>
+                            <span>$10.82</span>
+                        </div>
+                    </div>
+                    
+                    <div class="keyword-card">
+                        <h4>Washington DC Homes</h4>
+                        <div class="keyword-metric">
+                            <span>Conversions</span>
+                            <span style="color: #2ecc71; font-weight: 600;">13</span>
+                        </div>
+                        <div class="keyword-metric">
+                            <span>Conv. Rate</span>
+                            <span>5.02%</span>
+                        </div>
+                        <div class="keyword-metric">
+                            <span>CPA</span>
+                            <span>$36.46</span>
+                        </div>
+                    </div>
+                    
+                    <div class="keyword-card">
+                        <h4>Georgetown Real Estate</h4>
+                        <div class="keyword-metric">
+                            <span>Conversions</span>
+                            <span style="color: #2ecc71; font-weight: 600;">3</span>
+                        </div>
+                        <div class="keyword-metric">
+                            <span>Conv. Rate</span>
+                            <span>6.00%</span>
+                        </div>
+                        <div class="keyword-metric">
+                            <span>CPA</span>
+                            <span>$25.86</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <table style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Search Term</th>
+                            <th>Clicks</th>
+                            <th>Cost</th>
+                            <th>Conversions</th>
+                            <th>Conv. Rate</th>
+                            <th>CPA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="conversion-highlight">
+                            <td>dc condos for sale</td>
+                            <td>9</td>
+                            <td>$18.30</td>
+                            <td>1</td>
+                            <td>11.11%</td>
+                            <td>$18.30</td>
+                        </tr>
+                        <tr class="conversion-highlight">
+                            <td>dc condos for sale nw</td>
+                            <td>2</td>
+                            <td>$3.35</td>
+                            <td>1</td>
+                            <td>50.00%</td>
+                            <td>$3.35</td>
+                        </tr>
+                        <tr class="conversion-highlight">
+                            <td>washington dc real estate</td>
+                            <td>4</td>
+                            <td>$10.14</td>
+                            <td>1</td>
+                            <td>25.00%</td>
+                            <td>$10.14</td>
+                        </tr>
+                        <tr class="conversion-highlight">
+                            <td>houses for sale washington</td>
+                            <td>7</td>
+                            <td>$14.91</td>
+                            <td>1</td>
+                            <td>14.29%</td>
+                            <td>$14.91</td>
+                        </tr>
+                        <tr class="conversion-highlight">
+                            <td>new construction homes washington dc</td>
+                            <td>2</td>
+                            <td>$4.71</td>
+                            <td>1</td>
+                            <td>50.00%</td>
+                            <td>$4.71</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Search Insights -->
+            <div class="section">
+                <h3><span class="icon">💡</span> Search Campaign Insights</h3>
+                
+                <div class="insights-box">
+                    <h4>🏆 Performance Highlights</h4>
+                    <ul>
+                        <li><strong>DC Condos Dominate:</strong> "DC condos" keywords show highest conversion rates (11-50%), indicating strong buyer intent</li>
+                        <li><strong>New Construction Interest:</strong> 50% conversion rate on new construction searches reveals untapped opportunity</li>
+                        <li><strong>Georgetown Premium Market:</strong> 6% conversion rate with $25.86 CPA shows efficient luxury market penetration</li>
+                        <li><strong>Geographic Winners:</strong> Washington DC keywords drive 58% of all conversions</li>
+                    </ul>
+                </div>
+                
+                <div class="recommendations-box">
+                    <h4>🚀 Optimization Recommendations</h4>
+                    <ul>
+                        <li>Increase budget allocation to DC condo keywords by 50%</li>
+                        <li>Create dedicated ad groups for new construction properties</li>
+                        <li>Implement dayparting to focus on high-conversion hours</li>
+                        <li>Add negative keywords for zero-conversion terms to improve efficiency</li>
+                        <li>Test dynamic keyword insertion for higher CTR on property-specific searches</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Display Campaign Content -->
+        <div id="display-content" class="campaign-content hidden">
+            <div class="executive-summary">
+                <h2>Display Campaign Performance - Brand Visibility Focus</h2>
+                
+                <div class="metrics-overview">
+                    <div class="metric-card highlight">
+                        <div class="label">Total Impressions</div>
+                        <div class="value">67,155</div>
+                        <div class="context">Market saturation achieved</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Website Visits</div>
+                        <div class="value">715</div>
+                        <div class="context">Quality traffic generated</div>
+                    </div>
+                    
+                    <div class="metric-card success">
+                        <div class="label">Average CPM</div>
+                        <div class="value">$15.39</div>
+                        <div class="context">Efficient reach pricing</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Display Investment</div>
+                        <div class="value">$1,033.81</div>
+                        <div class="context">52% of total budget</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">CTR</div>
+                        <div class="value">1.06%</div>
+                        <div class="context">Above display average</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="label">Bonus Conversions</div>
+                        <div class="value">5</div>
+                        <div class="context">Unexpected leads</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Property Showcase Performance -->
+            <div class="section">
+                <h3><span class="icon">🏠</span> Property Showcase Performance</h3>
+                
+                <div class="property-showcase">
+                    <div class="property-card">
+                        <h4>3725 9th St NW</h4>
+                        <div class="impressions">14,244</div>
+                        <div class="performance">178 visits • 1 conversion</div>
+                    </div>
+                    
+                    <div class="property-card">
+                        <h4>2310 20th St NW</h4>
+                        <div class="impressions">18,753</div>
+                        <div class="performance">155 visits • 1 conversion</div>
+                    </div>
+                    
+                    <div class="property-card">
+                        <h4>1435 4th St SW</h4>
+                        <div class="impressions">15,809</div>
+                        <div class="performance">216 visits • 1 conversion</div>
+                    </div>
+                    
+                    <div class="property-card">
+                        <h4>Brand Awareness</h4>
+                        <div class="impressions">18,349</div>
+                        <div class="performance">165 visits • 2 conversions</div>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 30px; color: #2c3e50;">Audience Targeting Performance</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Income Segment</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                            <th>CTR</th>
+                            <th>Conversions</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="top-performer">
+                            <td><strong>Top 10%</strong></td>
+                            <td>34,920</td>
+                            <td>425</td>
+                            <td>1.22%</td>
+                            <td>2</td>
+                            <td><span class="performance-badge excellent">Best Segment</span></td>
+                        </tr>
+                        <tr>
+                            <td>Unknown</td>
+                            <td>16,672</td>
+                            <td>182</td>
+                            <td>1.09%</td>
+                            <td>1</td>
+                            <td><span class="performance-badge good">Good</span></td>
+                        </tr>
+                        <tr>
+                            <td>Lower 50%</td>
+                            <td>11,586</td>
+                            <td>82</td>
+                            <td>0.71%</td>
+                            <td>2</td>
+                            <td><span class="performance-badge average">Average</span></td>
+                        </tr>
+                        <tr>
+                            <td>41-50%</td>
+                            <td>2,281</td>
+                            <td>19</td>
+                            <td>0.83%</td>
+                            <td>0</td>
+                            <td><span class="performance-badge average">Average</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Display Insights -->
+            <div class="section">
+                <h3><span class="icon">📈</span> Display Campaign Analysis</h3>
+                
+                <div class="insights-box">
+                    <h4>🎯 Brand Building Success</h4>
+                    <ul>
+                        <li><strong>Luxury Market Penetration:</strong> Top 10% income segment shows highest engagement (1.22% CTR)</li>
+                        <li><strong>Cost-Effective Reach:</strong> $15.39 CPM delivers strong market presence below industry average</li>
+                        <li><strong>Unexpected Value:</strong> 5 conversions from display show brand influence on purchase decisions</li>
+                        <li><strong>Property Interest:</strong> 1435 4th St SW leads in engagement with 216 clicks</li>
+                    </ul>
+                </div>
+                
+                <div class="recommendations-box">
+                    <h4>📍 Display Optimization Strategy</h4>
+                    <ul>
+                        <li>Increase frequency cap to 3x/week for top 10% income segment</li>
+                        <li>Create custom audiences based on search campaign converters</li>
+                        <li>Test video creative for luxury property showcases</li>
+                        <li>Implement sequential messaging for property tours</li>
+                        <li>Add contextual targeting for real estate content sites</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Strategic Recommendations -->
+        <div class="section">
+            <h3><span class="icon">🎯</span> 30-Day Action Plan</h3>
+            
+            <div class="recommendations-box">
+                <h4>Immediate Actions (Week 1)</h4>
+                <ul>
+                    <li><strong>Budget Reallocation:</strong> Shift $200 from display to search based on superior CPA performance</li>
+                    <li><strong>Keyword Expansion:</strong> Add 10 new DC condo variations based on high conversion rates</li>
+                    <li><strong>Landing Page Test:</strong> Create dedicated pages for top 3 converting keywords</li>
+                </ul>
+            </div>
+            
+            <div class="recommendations-box" style="background: #fff3cd; border-left-color: #ffc107;">
+                <h4 style="color: #856404;">Optimization Focus (Week 2-3)</h4>
+                <ul>
+                    <li><strong>Audience Refinement:</strong> Create lookalike audiences from search converters for display targeting</li>
+                    <li><strong>Ad Schedule:</strong> Implement dayparting based on conversion timing analysis</li>
+                    <li><strong>Creative Testing:</strong> Launch A/B tests for new construction focused ad copy</li>
+                </ul>
+            </div>
+            
+            <div class="recommendations-box">
+                <h4>Growth Initiatives (Week 4)</h4>
+                <ul>
+                    <li><strong>Market Expansion:</strong> Test Bethesda and Silver Spring keywords with 10% budget</li>
+                    <li><strong>Video Campaign:</strong> Launch YouTube property tour ads for brand awareness</li>
+                    <li><strong>Remarketing:</strong> Implement dynamic remarketing for viewed properties</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div class="logo">Blok.co</div>
+        <p>Digital Marketing Excellence in Real Estate</p>
+        <p>This comprehensive report demonstrates our data-driven approach to maximizing ROI across search and display channels.</p>
+        <p>Contact your Blok.co account team for campaign optimization discussions.</p>
+    </div>
+    
+    <script>
+        function showCampaign(campaign) {
+            // Hide all content
+            document.querySelectorAll('.campaign-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.campaign-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content
+            document.getElementById(campaign + '-content').classList.remove('hidden');
+            
+            // Add active class to clicked tab
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
